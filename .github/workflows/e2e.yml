@@ -1,0 +1,85 @@
+name: e2e
+
+# End-to-end tests for resilient-pubsub consumed from a NestJS application,
+# exercised against the Google Cloud Pub/Sub emulator.
+#
+# Proves the library is framework-agnostic: the same API and semantics that
+# work in plain Node work identically inside the Nest DI container, including
+# NestJS lifecycle hooks (OnModuleInit, OnApplicationShutdown).
+#
+# The emulator runs as a background Docker container using the OFFICIAL
+# google-cloud-cli emulators image with its documented start command
+# (`gcloud beta emulators pubsub start`). It must be a `docker run` step rather
+# than a `services:` container because the official image's default command is a
+# shell, not the emulator — `services:` cannot override the command, so the
+# emulator would never start. (The community messagebird image opened the TCP
+# port but its gRPC service did not respond, so every admin/publish call hung and
+# the vitest worker was SIGTERM'd with no test output.)
+#
+# Tests create their own topics and subscriptions, so no pre-seeded topology is
+# required.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  PUBSUB_EMULATOR_HOST: localhost:8085
+  PROJECT_ID: e2e-project
+  GOOGLE_CLOUD_PROJECT: e2e-project
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Start Pub/Sub emulator (official cloud-cli image)
+        run: |
+          docker run -d --name pubsub-emulator -p 8085:8085 \
+            gcr.io/google.com/cloudsdktool/google-cloud-cli:emulators \
+            gcloud beta emulators pubsub start \
+              --host-port=0.0.0.0:8085 \
+              --project=e2e-project
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v4.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Wait for Pub/Sub emulator
+        shell: bash
+        run: |
+          echo "Waiting for the emulator to serve on :8085 ..."
+          for i in $(seq 1 60); do
+            if nc -z localhost 8085; then
+              echo "port open; giving the gRPC server a moment to be ready"
+              sleep 5
+              exit 0
+            fi
+            echo "  attempt $i/60 — sleeping 2s"; sleep 2
+          done
+          echo "emulator did not open port 8085; container logs:" >&2
+          docker logs pubsub-emulator || true
+          exit 1
+
+      - name: Type check
+        run: pnpm typecheck
+
+      - name: Run e2e tests
+        run: pnpm test
+
+      - name: Emulator logs on failure
+        if: failure()
+        run: docker logs pubsub-emulator || true

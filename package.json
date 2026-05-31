@@ -1,0 +1,32 @@
+{
+  "name": "resilient-pubsub-e2e-nestjs",
+  "version": "0.1.0",
+  "description": "End-to-end consumer tests for resilient-pubsub inside a NestJS application, exercised against the Google Cloud Pub/Sub emulator",
+  "private": true,
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "resilient-pubsub": "github:valianx/resilient-pubsub#de036badb4cd5e40c09cf517ce86abc74d85c24e",
+    "@google-cloud/pubsub": "^5.3.0",
+    "@nestjs/common": "^10.3.0",
+    "@nestjs/core": "^10.3.0",
+    "@nestjs/testing": "^10.3.0",
+    "reflect-metadata": "^0.2.1",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "vitest": "^2.1.0",
+    "typescript": "^5.3.0",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.7.0",
+    "unplugin-swc": "^1.5.1",
+    "@swc/core": "^1.7.0"
+  },
+  "engines": {
+    "node": ">=24.0.0",
+    "pnpm": ">=11"
+  },
+  "packageManager": "pnpm@11.1.0"
+}

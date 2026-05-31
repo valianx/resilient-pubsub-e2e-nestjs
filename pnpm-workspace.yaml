@@ -1,0 +1,8 @@
+minimumReleaseAge: 0
+allowBuilds:
+  esbuild: true
+  protobufjs: true
+  '@google-cloud/pubsub': true
+  resilient-pubsub: true
+  '@nestjs/core': true
+  '@swc/core': true
