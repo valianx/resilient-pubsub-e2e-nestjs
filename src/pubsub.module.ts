@@ -14,12 +14,12 @@ import 'reflect-metadata';
 import { Module } from '@nestjs/common';
 import { PubSub } from '@google-cloud/pubsub';
 import { SubscriberService } from './subscriber.service.js';
+import { PUBSUB_CLIENT } from './tokens.js';
 
-/** Injection token for the shared @google-cloud/pubsub PubSub client. */
-export const PUBSUB_CLIENT = 'PUBSUB_CLIENT';
-
-/** Injection token for the resilient publisher factory instance. */
-export const RESILIENT_PUBLISHER = 'RESILIENT_PUBLISHER';
+// Tokens are defined in ./tokens.ts (standalone, no imports) to avoid a circular
+// import between this module and subscriber.service.ts that would break DI.
+// Re-export for convenience so existing imports of these names keep working.
+export { PUBSUB_CLIENT, RESILIENT_PUBLISHER } from './tokens.js';
 
 /**
  * Environment variable read by @google-cloud/pubsub to locate the emulator.

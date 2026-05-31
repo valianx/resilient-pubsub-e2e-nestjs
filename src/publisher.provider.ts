@@ -16,7 +16,7 @@ import type { FactoryProvider } from '@nestjs/common';
 import type { PubSub } from '@google-cloud/pubsub';
 import { createResilientPublisher } from 'resilient-pubsub/publisher';
 import type { ResilientPublisher, PublisherOptions } from 'resilient-pubsub/publisher';
-import { PUBSUB_CLIENT } from './pubsub.module.js';
+import { PUBSUB_CLIENT } from './tokens.js';
 
 /**
  * Builds a NestJS FactoryProvider that produces a ResilientPublisher<T>.

@@ -32,7 +32,7 @@ import type {
   SubscriberOptions,
   MessageHandler,
 } from 'resilient-pubsub/subscriber';
-import { PUBSUB_CLIENT } from './pubsub.module.js';
+import { PUBSUB_CLIENT } from './tokens.js';
 
 @Injectable()
 export class SubscriberService<T = unknown>
