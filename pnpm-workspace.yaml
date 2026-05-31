@@ -5,3 +5,4 @@ allowBuilds:
   '@google-cloud/pubsub': true
   resilient-pubsub: true
   '@nestjs/core': true
+  '@swc/core': true
